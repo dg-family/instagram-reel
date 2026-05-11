@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Instagram 翻譯播放</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;1,9..40,400&family=Noto+Sans+TC:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0f14;
+      --card: #151a22;
+      --border: #252d3a;
+      --text: #e8edf5;
+      --muted: #8b98ad;
+      --accent: #6c9cff;
+      --accent-dim: #4a74d9;
+      --ok: #3dd68c;
+      --err: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans TC", "DM Sans", system-ui, sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #1a2440 0%, transparent 55%),
+                  radial-gradient(900px 500px at 100% 0%, #1e2a32 0%, transparent 50%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+    header {
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.35rem;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.35rem;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+    }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
+    input[type="url"] {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0e1218;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+    input[type="url"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108, 156, 255, 0.2);
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    .chk {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    button {
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(74, 116, 217, 0.35);
+    }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    #status {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      min-height: 1.5rem;
+    }
+    #status.processing { color: var(--accent); }
+    #status.done { color: var(--ok); }
+    #status.err { color: var(--err); }
+    .player-wrap {
+      margin-top: 1.5rem;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #000;
+      display: none;
+    }
+    .player-wrap.visible { display: block; }
+    video {
+      width: 100%;
+      vertical-align: middle;
+      max-height: 72vh;
+    }
+    .hint {
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    code { font-size: 0.85em; background: #0e1218; padding: 0.1em 0.35em; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Instagram 翻譯播放</h1>
+      <p class="sub">貼上公開 Reel／貼文連結，處理完成後可在此播放影片並顯示<strong>中文翻譯字幕</strong>（原音保留）。</p>
+    </header>
+
+    <div class="card">
+      <label for="url">Instagram 網址</label>
+      <input id="url" type="url" placeholder="https://www.instagram.com/reel/..." autocomplete="off" />
+
+      <div class="row">
+        <label class="chk">
+          <input id="traditional" type="checkbox" checked />
+          繁體中文
+        </label>
+        <button type="button" id="go">開始處理</button>
+      </div>
+
+      <div id="status"></div>
+
+      <div id="playerBox" class="player-wrap">
+        <video id="player" controls playsinline>
+          <track id="subTrack" kind="subtitles" srclang="zh" label="中文" default />
+        </video>
+      </div>
+
+      <p class="hint">
+        首次轉錄會下載 Whisper 模型，可能需數分鐘。請僅處理你有權檢視的內容；私人或需登入的貼文無法由此下載。<br />
+        本機服務預設網址：<code id="origin"></code>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    $("origin").textContent = window.location.origin;
+
+    const stageText = {
+      queued: "排隊中…",
+      download: "正在下載影片…",
+      transcribe: "正在辨識語音…",
+      translate: "正在翻譯字幕…",
+      done: "完成。",
+      error: "發生錯誤。",
+    };
+
+    function setStatus(msg, cls) {
+      const el = $("status");
+      el.textContent = msg;
+      el.className = cls || "";
+    }
+
+    async function poll(jobId) {
+      const url = "/api/jobs/" + encodeURIComponent(jobId);
+      for (;;) {
+        const r = await fetch(url);
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.detail || r.statusText);
+        const st = j.status;
+        const stage = j.stage || "";
+        if (st === "failed") throw new Error(j.error || "處理失敗");
+        if (st === "completed") return j;
+        setStatus(stageText[stage] || "處理中…", "processing");
+        await new Promise((res) => setTimeout(res, 1500));
+      }
+    }
+
+    $("go").addEventListener("click", async () => {
+      const raw = $("url").value.trim();
+      if (!raw) {
+        setStatus("請先貼上 Instagram 連結。", "err");
+        return;
+      }
+      const btn = $("go");
+      const player = $("player");
+      const track = $("subTrack");
+      const box = $("playerBox");
+      box.classList.remove("visible");
+      player.removeAttribute("src");
+      track.removeAttribute("src");
+      player.load();
+
+      btn.disabled = true;
+      setStatus("建立工作中…", "processing");
+      try {
+        const res = await fetch("/api/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url: raw,
+            traditional: $("traditional").checked,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          const d = data.detail;
+          const msg = Array.isArray(d)
+            ? d.map((x) => x.msg || JSON.stringify(x)).join("；")
+            : typeof d === "string"
+              ? d
+              : JSON.stringify(d);
+          throw new Error(msg || res.statusText);
+        }
+        await poll(data.job_id);
+
+        const vBase = window.location.origin;
+        player.src = vBase + "/api/jobs/" + encodeURIComponent(data.job_id) + "/video";
+        track.src = vBase + "/api/jobs/" + encodeURIComponent(data.job_id) + "/subtitles.vtt";
+        track.srclang = $("traditional").checked ? "zh-Hant" : "zh-Hans";
+        track.label = $("traditional").checked ? "中文（繁體）" : "中文（简体）";
+        box.classList.add("visible");
+        setStatus("可以播放。若看不到字幕，請在播放器選單開啟「中文」軌道。", "done");
+        await player.play().catch(() => {});
+      } catch (e) {
+        setStatus(String(e.message || e), "err");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

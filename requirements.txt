@@ -1,0 +1,5 @@
+faster-whisper>=1.0.0
+deep-translator>=1.11.4
+edge-tts>=7.0.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0

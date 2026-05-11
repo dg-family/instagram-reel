@@ -1,0 +1,29 @@
+# Fly.io「應用名稱」與 GitHub org 無關；請改成你在 fly.io 上建立的唯一名稱。
+app = "ig-translate-web"
+primary_region = "nrt"
+
+[build]
+
+[env]
+  HOST = "0.0.0.0"
+  PORT = "8765"
+  WHISPER_MODEL = "base"
+
+[http_service]
+  internal_port = 8765
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "60s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  memory = "2gb"
+  cpus = 2
