@@ -1,4 +1,4 @@
-# 程式碼放在 GitHub org「dg-family」底下時，PR / push 會驗證 Docker 能否成功建置。
+# Repo: github.com/dg-family/instagram-reef — PR / push 驗證 Docker 能否成功建置。
 name: Docker build
 
 on:
