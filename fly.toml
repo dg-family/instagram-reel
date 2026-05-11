@@ -1,4 +1,4 @@
-# 原始碼：https://github.com/dg-family/instagram-reef
+# 原始碼：https://github.com/dg-family/instagram-reel
 # Fly.io「應用名稱」與 GitHub org 無關；請改成你在 fly.io 上建立的唯一名稱。
 app = "ig-translate-web"
 primary_region = "nrt"
