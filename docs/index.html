@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>instagram-reel · dg-family</title>
+  <style>
+    :root { --bg:#0c0f14; --card:#151a22; --b:#252d3a; --t:#e8edf5; --m:#8b98ad; --a:#6c9cff; }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; font-family: system-ui, "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--t); line-height: 1.6; padding: 2rem 1.25rem; }
+    .card { max-width: 640px; margin: 0 auto; background: var(--card); border: 1px solid var(--b);
+      border-radius: 14px; padding: 1.75rem; }
+    h1 { font-size: 1.35rem; margin: 0 0 0.5rem; }
+    p { color: var(--m); margin: 0.75rem 0; }
+    a { color: var(--a); }
+    code { background: #0e1218; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; }
+    ul { color: var(--m); padding-left: 1.25rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>instagram-reel</h1>
+    <p>若你看到本頁，代表 <strong>GitHub Pages</strong> 已成功發佈靜態內容。</p>
+    <p><strong>說明：</strong>本專案的主程式是 <code>FastAPI</code>（Python），需在伺服器上執行；GitHub Pages 只能放靜態網頁，無法在這個網址上跑轉錄／下載 Instagram 的 API。</p>
+    <p>請到原始碼倉庫查看說明與本機／雲端部署方式：</p>
+    <p><a href="https://github.com/dg-family/instagram-reel">github.com/dg-family/instagram-reel</a></p>
+    <p>本機快速啟動（需已安裝依賴與 ffmpeg、yt-dlp）：</p>
+    <ul>
+      <li><code>pip install -r requirements.txt</code></li>
+      <li><code>python web_server.py</code> → 瀏覽 <code>http://127.0.0.1:8765/</code></li>
+    </ul>
+  </div>
+</body>
+</html>
