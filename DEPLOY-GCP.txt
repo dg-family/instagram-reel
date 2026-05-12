@@ -49,10 +49,14 @@ https://cloud.google.com/sdk/docs/install
 七、在 GitHub Actions 上部署（本機不必裝 gcloud）
 -----------------------------------------------
 1. 在 GCP Console 建立服務帳號（例：github-deploy-ig-reel），並授予專案層級角色（擇一策略）：
-   - 簡化（開發用）：「編輯者 Editor」roles/editor
-   - 較精簡：至少需能送 Cloud Build、寫 Artifact Registry、部署 Cloud Run，例如：
-     roles/run.admin、roles/artifactregistry.admin、roles/cloudbuild.builds.editor、
-     roles/iam.serviceAccountUser、roles/storage.admin
+   - 簡化（開發用）：「編輯者 Editor」roles/editor（含 Cloud Build 送出、上傳原始碼到 GCS、部署等）
+   - 較精簡（給 GitHub Actions 用的金鑰帳號，請至少加齊下列專案層級角色）：
+     • roles/cloudbuild.builds.editor   ← 沒有這個會出現 (gcloud.builds.submit) PERMISSION_DENIED
+     • roles/storage.objectAdmin        ← 讓 gcloud builds submit 能把原始碼 tarball 寫進 _cloudbuild 桶
+     • roles/artifactregistry.writer    ← 建置完成後寫入 Artifact Registry（或改用 roles/artifactregistry.admin）
+     • roles/run.admin                  ← 部署 / 更新 Cloud Run
+     • roles/iam.serviceAccountUser     ← 部署時可能需「使用」專案內其他服務帳號（見官方 Cloud Run + CI 說明）
+     • roles/serviceusage.serviceUsageConsumer ← 呼叫已啟用的 API（多數專案預設已有）
 2. 為該服務帳號建立 JSON 金鑰（Console → IAM → 服務帳號 → 金鑰 → 新增 JSON），下載檔案。
 3. GitHub repo → Settings → Secrets and variables → Actions → New repository secret
    - 名稱：GCP_SA_KEY
@@ -60,7 +64,29 @@ https://cloud.google.com/sdk/docs/install
 4. Actions →「Deploy Cloud Run」→ Run workflow
 5. 成功後日誌最後會印出 Cloud Run URL；將該網址設為 PUBLIC_API_URL，再跑「Deploy GitHub Pages」。
 
-若 Cloud Build 在「推映像到 Artifact Registry」失敗，請在 Cloud Shell 執行（區域與 repo 名需與 workflow 一致）：
+八、錯誤：PERMISSION_DENIED（gcloud.builds.submit）
+-------------------------------------------------
+日誌若寫「authenticated as xxx@...iam.gserviceaccount.com」且 builds.submit 被拒，代表該服務帳號缺權限。
+請用「專案擁有者」在 Cloud Shell 執行（把 SA_EMAIL 換成你金鑰裡的 client_email）：
+
+  export PROJECT_ID=ig-reel-translate
+  export SA_EMAIL='你的服務帳號@ig-reel-translate.iam.gserviceaccount.com'
+
+  gcloud config set project "${PROJECT_ID}"
+
+  for ROLE in roles/cloudbuild.builds.editor roles/storage.objectAdmin roles/artifactregistry.writer roles/run.admin roles/iam.serviceAccountUser; do
+    gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+      --member="serviceAccount:${SA_EMAIL}" \
+      --role="${ROLE}"
+  done
+
+  gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --member="serviceAccount:${SA_EMAIL}" \
+    --role="roles/serviceusage.serviceUsageConsumer"
+
+完成後等約 1 分鐘，再在 GitHub 重新 Run workflow。
+
+若 Cloud Build 在「推映像到 Artifact Registry」失敗（建置已開始但 push 失敗），多半是 **Cloud Build 預設服務帳號**沒寫入權限，請在 Cloud Shell 執行（區域與 repo 名需與 workflow 一致）：
 
   PROJECT_NUMBER=$(gcloud projects describe ig-reel-translate --format='value(projectNumber)')
   gcloud artifacts repositories add-iam-policy-binding ig-api \
