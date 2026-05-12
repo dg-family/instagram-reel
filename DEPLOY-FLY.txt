@@ -1,0 +1,30 @@
+Fly.io 部署（API 網址給 GitHub Pages 前端使用）
+============================================
+
+1) 安裝 flyctl 並登入
+   https://fly.io/docs/hands-on/install-flyctl/
+   fly auth login
+
+2) 在專案目錄（含 fly.toml）建立應用（若尚未建立）
+   fly apps create ig-translate-web
+   若名稱已被占用，請修改 fly.toml 第一行 app = "你的名稱"
+
+3) 部署
+   fly deploy
+
+4) 記下對外網址（範例）
+   https://ig-translate-web.fly.dev
+
+5) GitHub 倉庫設定（讓 Pages 上的 app.html 呼叫你的 Fly API）
+   Settings → Secrets and variables → Actions → New repository secret
+   名稱：PUBLIC_API_URL
+   值：  https://ig-translate-web.fly.dev
+   （勿加結尾斜線）
+
+6) 重新執行 Actions「Deploy GitHub Pages」，完成後開啟
+   https://dg-family.github.io/instagram-reel/app.html
+
+7) 若前端網域不是 dg-family.github.io，請在 Fly 設定 CORS（覆寫 fly.toml 預設）：
+   fly secrets set CORS_ORIGINS="https://你的前端網域,https://dg-family.github.io"
+
+8) 僅用 Fly、不用 GitHub Pages 時，瀏覽器直接開 Fly 網址根路徑即可（API 與網頁同源）。

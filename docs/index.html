@@ -3,33 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>instagram-reel · dg-family</title>
+  <title>instagram-reel · 入口</title>
   <style>
     :root { --bg:#0c0f14; --card:#151a22; --b:#252d3a; --t:#e8edf5; --m:#8b98ad; --a:#6c9cff; }
     * { box-sizing: border-box; }
-    body { margin:0; min-height:100vh; font-family: system-ui, "Segoe UI", sans-serif;
-      background: var(--bg); color: var(--t); line-height: 1.6; padding: 2rem 1.25rem; }
+    body { margin:0; min-height:100vh; font-family: system-ui, sans-serif;
+      background: var(--bg); color: var(--t); line-height: 1.65; padding: 2rem 1.25rem; }
     .card { max-width: 640px; margin: 0 auto; background: var(--card); border: 1px solid var(--b);
       border-radius: 14px; padding: 1.75rem; }
-    h1 { font-size: 1.35rem; margin: 0 0 0.5rem; }
+    h1 { font-size: 1.35rem; margin: 0 0 0.75rem; }
     p { color: var(--m); margin: 0.75rem 0; }
-    a { color: var(--a); }
-    code { background: #0e1218; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; }
-    ul { color: var(--m); padding-left: 1.25rem; }
+    a.btn { display:inline-block; margin-top:0.5rem; padding:0.65rem 1.2rem; background:var(--a);
+      color:#fff; text-decoration:none; border-radius:10px; font-weight:600; }
+    code { background:#0e1218; padding:0.12em 0.35em; border-radius:4px; font-size:0.88em; }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>instagram-reel</h1>
-    <p>若你看到本頁，代表 <strong>GitHub Pages</strong> 已成功發佈靜態內容（<code>docs/index.html</code>，適用「GitHub Actions」或「從分支選 /docs」）。倉庫根目錄另有 <code>index.html</code> 供「從分支選根目錄」使用。</p>
-    <p><strong>說明：</strong>本專案的主程式是 <code>FastAPI</code>（Python），需在伺服器上執行；GitHub Pages 只能放靜態網頁，無法在這個網址上跑轉錄／下載 Instagram 的 API。</p>
-    <p>請到原始碼倉庫查看說明與本機／雲端部署方式：</p>
-    <p><a href="https://github.com/dg-family/instagram-reel">github.com/dg-family/instagram-reel</a></p>
-    <p>本機快速啟動（需已安裝依賴與 ffmpeg、yt-dlp）：</p>
-    <ul>
-      <li><code>pip install -r requirements.txt</code></li>
-      <li><code>python web_server.py</code> → 瀏覽 <code>http://127.0.0.1:8765/</code></li>
-    </ul>
+    <p>這是 <strong>GitHub Pages</strong> 靜態入口。轉錄與串流由 <strong>Fly.io 上的 API</strong> 提供。</p>
+    <p><a class="btn" href="./app.html">開啟翻譯工具</a></p>
+    <p>若工具無法連線，請確認倉庫已設定 Actions secret <code>PUBLIC_API_URL</code>（你的 Fly 網址，例如 <code>https://你的應用名.fly.dev</code>，不要結尾斜線），並重新執行 <strong>Deploy GitHub Pages</strong>。</p>
+    <p>原始碼：<a href="https://github.com/dg-family/instagram-reel">github.com/dg-family/instagram-reel</a></p>
   </div>
 </body>
 </html>

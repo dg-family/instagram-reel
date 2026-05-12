@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- 佔位符由 FastAPI（EMBEDDED_API_BASE）或 GitHub Actions（inject_api_base.py）替換；空白＝與本頁同源 -->
+  <meta name="instagram-reel-api" content="__INSTAGRAM_REEL_API_BASE__" />
   <title>Instagram 翻譯播放</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -163,14 +165,46 @@
 
       <p class="hint">
         首次轉錄會下載 Whisper 模型，可能需數分鐘。請僅處理你有權檢視的內容；私人或需登入的貼文無法由此下載。<br />
-        本機服務預設網址：<code id="origin"></code>
+        API 基底（影片與字幕由此網址載入）：<code id="origin"></code>
       </p>
     </div>
   </div>
 
   <script>
     const $ = (id) => document.getElementById(id);
-    $("origin").textContent = window.location.origin;
+
+    function apiBase() {
+      const m = document.querySelector('meta[name="instagram-reel-api"]');
+      const raw = (m && m.getAttribute("content")) || "";
+      return String(raw).trim().replace(/\/$/, "");
+    }
+
+    function apiUrl(path) {
+      const p = path.startsWith("/") ? path : "/" + path;
+      const b = apiBase();
+      return b ? b + p : p;
+    }
+
+    function syncPlayerCors() {
+      const b = apiBase();
+      const player = $("player");
+      if (!b) {
+        player.removeAttribute("crossOrigin");
+        return;
+      }
+      try {
+        const apiOrigin = new URL(b).origin;
+        if (apiOrigin !== window.location.origin) {
+          player.crossOrigin = "anonymous";
+        } else {
+          player.removeAttribute("crossOrigin");
+        }
+      } catch {
+        player.removeAttribute("crossOrigin");
+      }
+    }
+
+    $("origin").textContent = apiBase() || window.location.origin;
 
     const stageText = {
       queued: "排隊中…",
@@ -188,7 +222,7 @@
     }
 
     async function poll(jobId) {
-      const url = "/api/jobs/" + encodeURIComponent(jobId);
+      const url = apiUrl("/api/jobs/" + encodeURIComponent(jobId));
       for (;;) {
         const r = await fetch(url);
         const j = await r.json();
@@ -216,11 +250,12 @@
       player.removeAttribute("src");
       track.removeAttribute("src");
       player.load();
+      syncPlayerCors();
 
       btn.disabled = true;
       setStatus("建立工作中…", "processing");
       try {
-        const res = await fetch("/api/jobs", {
+        const res = await fetch(apiUrl("/api/jobs"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -240,9 +275,8 @@
         }
         await poll(data.job_id);
 
-        const vBase = window.location.origin;
-        player.src = vBase + "/api/jobs/" + encodeURIComponent(data.job_id) + "/video";
-        track.src = vBase + "/api/jobs/" + encodeURIComponent(data.job_id) + "/subtitles.vtt";
+        player.src = apiUrl("/api/jobs/" + encodeURIComponent(data.job_id) + "/video");
+        track.src = apiUrl("/api/jobs/" + encodeURIComponent(data.job_id) + "/subtitles.vtt");
         track.srclang = $("traditional").checked ? "zh-Hant" : "zh-Hans";
         track.label = $("traditional").checked ? "中文（繁體）" : "中文（简体）";
         box.classList.add("visible");

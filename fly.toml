@@ -9,6 +9,8 @@ primary_region = "nrt"
   HOST = "0.0.0.0"
   PORT = "8765"
   WHISPER_MODEL = "base"
+  # 逗號分隔；GitHub Pages 前端（dg-family.github.io）須列在此
+  CORS_ORIGINS = "https://dg-family.github.io,http://127.0.0.1:8765,http://localhost:8765"
 
 [http_service]
   internal_port = 8765

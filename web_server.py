@@ -7,6 +7,10 @@
   pip install -r requirements.txt   # 需 yt-dlp、ffmpeg 在 PATH
   python web_server.py
 
+環境變數（選用）：
+  CORS_ORIGINS   逗號分隔的來源網址，預設含 GitHub Pages 與本機。
+  EMBEDDED_API_BASE  若 HTML 託管在別處，可設為本 API 根網址（通常不必設，Fly 同源即可）。
+
 瀏覽 http://127.0.0.1:8765/
 """
 
@@ -20,6 +24,7 @@ import uuid
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -39,6 +44,20 @@ app = FastAPI(title="Instagram 翻譯播放")
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
+
+# 逗號分隔；GitHub Pages 前端呼叫 Fly API 時必須把來源網址列在這裡
+_default_cors = "https://dg-family.github.io,http://127.0.0.1:8765,http://localhost:8765"
+_cors_raw = os.environ.get("CORS_ORIGINS", _default_cors).strip()
+_cors_origins = [o.strip() for o in _cors_raw.split(",") if o.strip()]
+if _cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_cors_origins,
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["*"],
+        expose_headers=["Accept-Ranges", "Content-Length", "Content-Range"],
+    )
 
 _jobs_lock = threading.Lock()
 _jobs: dict[str, dict] = {}
@@ -153,12 +172,25 @@ class CreateJobRequest(BaseModel):
     traditional: bool = True
 
 
-@app.get("/", response_class=HTMLResponse)
-def index() -> str:
+def _index_html() -> str:
     p = STATIC_DIR / "index.html"
     if not p.is_file():
         raise HTTPException(status_code=500, detail="缺少 static/index.html")
-    return p.read_text(encoding="utf-8")
+    html = p.read_text(encoding="utf-8")
+    # 部署在 Fly 同網域時留空；若要把 HTML 託管在別處可設 EMBEDDED_API_BASE
+    embedded = os.environ.get("EMBEDDED_API_BASE", "").strip().rstrip("/")
+    return html.replace("__INSTAGRAM_REEL_API_BASE__", embedded)
+
+
+@app.get("/", response_class=HTMLResponse)
+def index() -> str:
+    return _index_html()
+
+
+@app.get("/app", response_class=HTMLResponse)
+def app_page() -> str:
+    """與首頁相同，方便 GitHub Pages 使用 /app 路徑。"""
+    return _index_html()
 
 
 @app.get("/health")

@@ -25,11 +25,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Build Pages (landing + app + Fly API base)
+        env:
+          PUBLIC_API_URL: ${{ secrets.PUBLIC_API_URL }}
+        run: |
+          set -e
+          mkdir -p _site
+          cp docs/.nojekyll _site/
+          cp docs/index.html _site/index.html
+          cp static/index.html _site/app.html
+          python3 scripts/inject_api_base.py _site/app.html "$PUBLIC_API_URL"
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: _site
 
       - id: deployment
         uses: actions/deploy-pages@v4
