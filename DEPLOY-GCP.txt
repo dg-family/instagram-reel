@@ -1,0 +1,47 @@
+Google Cloud Run 部署（專案：ig-reel-translate）
+========================================
+
+本機無法替你完成「登入 Google」與「扣款授權」，請在你自己的電腦終端機執行下列步驟。
+
+一、建立 GCP 專案（若尚未建立）
+--------------------------------
+1. 開啟 https://console.cloud.google.com/
+2. 建立專案，專案 ID 請設為：ig-reel-translate
+3. 連結帳單帳戶（Billing）
+
+二、安裝 gcloud
+---------------
+https://cloud.google.com/sdk/docs/install
+
+三、登入並指定專案
+-----------------
+  gcloud auth login
+  gcloud config set project ig-reel-translate
+
+四、一鍵部署（在專案根目錄）
+---------------------------
+  cd /Users/yui-liangchen/.cursor/projects/empty-window/instagram-video-cn
+  chmod +x scripts/deploy-cloud-run.sh
+  ./scripts/deploy-cloud-run.sh
+
+腳本會：
+  - 啟用 Cloud Run、Artifact Registry、Cloud Build
+  - 建立 docker repository：ig-api（區域預設 asia-east1）
+  - 用 Cloud Build 建映像並推到 Artifact Registry（:latest）
+  - 部署 Cloud Run 服務名稱：instagram-reel-api（4Gi / 2 CPU / timeout 3600s）
+  - 列印 HTTPS 網址（形如 https://instagram-reel-api-xxxxx-xx.a.run.app）
+
+若要改區域或服務名稱，執行前可設環境變數：
+  export GCP_REGION=us-central1
+  export CLOUD_RUN_SERVICE=my-api
+  ./scripts/deploy-cloud-run.sh
+
+五、接 GitHub Pages
+-------------------
+1. GitHub repo → Settings → Secrets and variables → Actions
+2. 設定 PUBLIC_API_URL = 上一步印出的 Cloud Run 網址（不要結尾 /）
+3. Actions → Deploy GitHub Pages → Run workflow
+
+六、僅用 Cloud Run、不用 GitHub Pages
+------------------------------------
+瀏覽器直接開 Cloud Run 網址根路徑即可（API 與網頁同源）。
