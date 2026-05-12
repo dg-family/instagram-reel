@@ -28,8 +28,8 @@ https://cloud.google.com/sdk/docs/install
   - 啟用 Cloud Run、Artifact Registry、Cloud Build
   - 建立 docker repository：ig-api（區域預設 asia-east1）
   - 用 Cloud Build 建映像並推到 Artifact Registry（:latest）
-  - 部署 Cloud Run 服務名稱：instagram-reel-api（4Gi / 2 CPU / timeout 3600s）
-  - 列印 HTTPS 網址（形如 https://instagram-reel-api-xxxxx-xx.a.run.app）
+  - 部署 Cloud Run 服務名稱：ig-reel-translate-api（4Gi / 2 CPU / timeout 3600s）
+  - 列印 HTTPS 網址（形如 https://ig-reel-translate-api-xxxxx-xx.a.run.app）
 
 若要改區域或服務名稱，執行前可設環境變數：
   export GCP_REGION=us-central1

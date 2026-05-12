@@ -3,7 +3,7 @@
 本機網頁服務：輸入 Instagram 網址 → 下載 → 轉錄 → 分段翻譯 → WebVTT 中文字幕 + 原影片串流播放。
 
 啟動：
-  cd instagram-video-cn && source .venv/bin/activate
+  cd <專案目錄> && source .venv/bin/activate
   pip install -r requirements.txt   # 需 yt-dlp、ffmpeg 在 PATH
   python web_server.py
 

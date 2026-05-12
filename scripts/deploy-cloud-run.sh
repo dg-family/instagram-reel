@@ -6,8 +6,8 @@ set -euo pipefail
 PROJECT_ID="${GCP_PROJECT_ID:-ig-reel-translate}"
 REGION="${GCP_REGION:-asia-east1}"
 REPO="${ARTIFACT_REPO:-ig-api}"
-SERVICE="${CLOUD_RUN_SERVICE:-instagram-reel-api}"
-IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/instagram-reel-api:latest"
+SERVICE="${CLOUD_RUN_SERVICE:-ig-reel-translate-api}"
+IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/ig-reel-translate-api:latest"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT}"
@@ -25,7 +25,7 @@ if ! gcloud artifacts repositories describe "${REPO}" --location="${REGION}" --p
     --repository-format=docker \
     --location="${REGION}" \
     --project="${PROJECT_ID}" \
-    --description="instagram-reel API images"
+    --description="ig-reel-translate API images"
 fi
 
 echo "==> Docker auth for Artifact Registry"

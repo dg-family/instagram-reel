@@ -1,4 +1,4 @@
-# GitHub Pages：https://dg-family.github.io/instagram-reel/
+# GitHub Pages：https://dg-family.github.io/ig-reel-translate/
 # 建置：_site = 入口 index + app.html（內容來自 static/index.html，並注入 secrets.PUBLIC_API_URL）
 # Repo → Settings → Pages → Source 選「GitHub Actions」
 name: Deploy GitHub Pages

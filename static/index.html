@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- 佔位符由 FastAPI（EMBEDDED_API_BASE）或 GitHub Actions（inject_api_base.py）替換；空白＝與本頁同源 -->
-  <meta name="instagram-reel-api" content="__INSTAGRAM_REEL_API_BASE__" />
+  <meta name="ig-reel-translate-api" content="__INSTAGRAM_REEL_API_BASE__" />
   <title>Instagram 翻譯播放</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -174,7 +174,7 @@
     const $ = (id) => document.getElementById(id);
 
     function apiBase() {
-      const m = document.querySelector('meta[name="instagram-reel-api"]');
+      const m = document.querySelector('meta[name="ig-reel-translate-api"]');
       const raw = (m && m.getAttribute("content")) || "";
       return String(raw).trim().replace(/\/$/, "");
     }

@@ -22,7 +22,7 @@ Fly.io 部署（API 網址給 GitHub Pages 前端使用）
    （勿加結尾斜線）
 
 6) 重新執行 Actions「Deploy GitHub Pages」，完成後開啟
-   https://dg-family.github.io/instagram-reel/app.html
+   https://dg-family.github.io/ig-reel-translate/app.html
 
 7) 若前端網域不是 dg-family.github.io，請在 Fly 設定 CORS（覆寫 fly.toml 預設）：
    fly secrets set CORS_ORIGINS="https://你的前端網域,https://dg-family.github.io"

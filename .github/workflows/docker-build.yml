@@ -1,4 +1,4 @@
-# Repo: github.com/dg-family/instagram-reel — PR / push 驗證 Docker 能否成功建置。
+# Repo: github.com/dg-family/ig-reel-translate — PR / push 驗證 Docker 能否成功建置。
 name: Docker build
 
 on:
@@ -21,6 +21,6 @@ jobs:
         with:
           context: .
           push: false
-          tags: instagram-video-cn:ci
+          tags: ig-reel-translate:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
