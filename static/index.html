@@ -176,7 +176,12 @@
     function apiBase() {
       const m = document.querySelector('meta[name="ig-reel-translate-api"]');
       const raw = (m && m.getAttribute("content")) || "";
-      return String(raw).trim().replace(/\/$/, "");
+      const s = String(raw).trim().replace(/\/$/, "");
+      // 未替換的佔位符、或本機直接開 static/index.html 時，改為同源（相對路徑）
+      const PLACEHOLDER = "__INSTAGRAM_REEL_API_BASE__";
+      if (!s || s === PLACEHOLDER) return "";
+      if (!/^https?:\/\//i.test(s)) return "";
+      return s;
     }
 
     function apiUrl(path) {
