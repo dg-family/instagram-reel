@@ -45,3 +45,27 @@ https://cloud.google.com/sdk/docs/install
 六、僅用 Cloud Run、不用 GitHub Pages
 ------------------------------------
 瀏覽器直接開 Cloud Run 網址根路徑即可（API 與網頁同源）。
+
+七、在 GitHub Actions 上部署（本機不必裝 gcloud）
+-----------------------------------------------
+1. 在 GCP Console 建立服務帳號（例：github-deploy-ig-reel），並授予專案層級角色（擇一策略）：
+   - 簡化（開發用）：「編輯者 Editor」roles/editor
+   - 較精簡：至少需能送 Cloud Build、寫 Artifact Registry、部署 Cloud Run，例如：
+     roles/run.admin、roles/artifactregistry.admin、roles/cloudbuild.builds.editor、
+     roles/iam.serviceAccountUser、roles/storage.admin
+2. 為該服務帳號建立 JSON 金鑰（Console → IAM → 服務帳號 → 金鑰 → 新增 JSON），下載檔案。
+3. GitHub repo → Settings → Secrets and variables → Actions → New repository secret
+   - 名稱：GCP_SA_KEY
+   - 值：整份 JSON 內容（貼上即可）
+4. Actions →「Deploy Cloud Run」→ Run workflow
+5. 成功後日誌最後會印出 Cloud Run URL；將該網址設為 PUBLIC_API_URL，再跑「Deploy GitHub Pages」。
+
+若 Cloud Build 在「推映像到 Artifact Registry」失敗，請在 Cloud Shell 執行（區域與 repo 名需與 workflow 一致）：
+
+  PROJECT_NUMBER=$(gcloud projects describe ig-reel-translate --format='value(projectNumber)')
+  gcloud artifacts repositories add-iam-policy-binding ig-api \
+    --location=asia-east1 \
+    --project=ig-reel-translate \
+    --member="serviceAccount:${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com" \
+    --role="roles/artifactregistry.writer"
+

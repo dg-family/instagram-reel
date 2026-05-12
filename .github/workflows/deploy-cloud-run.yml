@@ -1,0 +1,74 @@
+# 在 GitHub 上部署到 Google Cloud Run（專案：ig-reel-translate）
+# 前置：GCP 專案已建立、已連結帳單；Repo → Settings → Secrets → Actions 設定 GCP_SA_KEY（JSON）
+name: Deploy Cloud Run
+
+on:
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ig-reel-translate
+  REGION: asia-east1
+  REPO: ig-api
+  SERVICE: ig-reel-translate-api
+  IMAGE: asia-east1-docker.pkg.dev/ig-reel-translate/ig-api/ig-reel-translate-api:latest
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: gcloud config
+        run: gcloud config set project "${{ env.PROJECT_ID }}"
+
+      - name: Enable APIs
+        run: |
+          gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com --project="${{ env.PROJECT_ID }}"
+
+      - name: Artifact Registry repository
+        run: |
+          if ! gcloud artifacts repositories describe "${{ env.REPO }}" --location="${{ env.REGION }}" --project="${{ env.PROJECT_ID }}" >/dev/null 2>&1; then
+            gcloud artifacts repositories create "${{ env.REPO }}" \
+              --repository-format=docker \
+              --location="${{ env.REGION }}" \
+              --project="${{ env.PROJECT_ID }}" \
+              --description="ig-reel-translate API"
+          fi
+
+      - name: Docker auth
+        run: gcloud auth configure-docker "${{ env.REGION }}-docker.pkg.dev" -q
+
+      - name: Cloud Build (build + push)
+        run: gcloud builds submit . --project="${{ env.PROJECT_ID }}" --tag "${{ env.IMAGE }}"
+
+      - name: Deploy Cloud Run
+        run: |
+          gcloud run deploy "${{ env.SERVICE }}" \
+            --project="${{ env.PROJECT_ID }}" \
+            --image "${{ env.IMAGE }}" \
+            --region "${{ env.REGION }}" \
+            --platform managed \
+            --allow-unauthenticated \
+            --memory 4Gi \
+            --cpu 2 \
+            --timeout 3600 \
+            --set-env-vars "HOST=0.0.0.0,CORS_ORIGINS=https://dg-family.github.io,WHISPER_MODEL=base"
+
+      - name: Print service URL
+        run: |
+          URL="$(gcloud run services describe "${{ env.SERVICE }}" --region="${{ env.REGION }}" --project="${{ env.PROJECT_ID }}" --format='value(status.url)')"
+          echo "Cloud Run URL: ${URL}"
+          echo ""
+          echo "請到 GitHub → Settings → Secrets → Actions，設定 PUBLIC_API_URL=${URL}"
+          echo "再執行「Deploy GitHub Pages」更新前端。"
